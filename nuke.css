@@ -1,0 +1,13 @@
+html.nuked-scroll-lock,
+html.nuked-scroll-lock body,
+html.nuked-scroll-lock #app,
+html.nuked-scroll-lock #root,
+html.nuked-scroll-lock #__next {
+  overflow: auto !important;
+  overflow-y: auto !important;
+  position: static !important;
+  height: auto !important;
+  max-height: none !important;
+  pointer-events: auto !important;
+  touch-action: auto !important;
+}

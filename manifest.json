@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "Alt-C-R Cookie Nuker",
+  "version": "1.0",
+  "icons": {
+    "16": "logo.png",
+    "48": "logo.png",
+    "128": "logo.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["nuke.css"],
+      "all_frames": true
+    }
+  ]
+}
