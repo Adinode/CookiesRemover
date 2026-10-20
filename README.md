@@ -1,32 +1,57 @@
-# Cookie Popup Remover 🍪🚫
+# Alt-C-R Cookie Nuker
 
-Tired of visiting a website and getting blocked by a giant "Accept Cookies" banner, a newsletter popup, or a screen that freezes until you click something? 
+A lightweight, no-nonsense Chrome extension that wipes out annoying cookie banners, destroys marketing overlays, and instantly restores broken scrollbars using simple keyboard shortcuts.
 
-This simple tool gives you the power to delete those annoying popups instantly and read the website in peace.
-
-## 🎮 How to Use It (The Controls)
-
-Once installed, you have three super-powers at your fingertips. Just press these keys on your keyboard:
-
-* **1. The Auto-Cleaner (`Alt` + `C` + `R`)**
-  * **What it does:** This is your go-to button. Press it, and the tool will automatically hunt down the cookie banner, delete it, and let you scroll the page normally.
-
-* **2. The Sniper Mode (`Alt` + `X`)**
-  * **What it does:** Sometimes websites hide their popups really well, and the Auto-Cleaner might miss them. Press `Alt + X` to turn your mouse cursor into a crosshair. Point at the annoying popup, click it, and it will instantly disappear! (Press `Alt + X` again to turn it off).
-
-* **3. The Nuclear Button (`Alt` + `K`)**
-  * **What it does:** If a website is super stubborn and freezes your entire screen with a massive full-page popup or discount offer, press `Alt + K`. This tells the tool to delete *anything* that is floating on top of the website. 
+Built without external tracking, libraries, or bloat. It stays completely inactive until you press a shortcut.
 
 ---
 
-## 🚀 How to Install It (Easy Step-by-Step)
+## What It Does
 
-Because this tool is shared directly here instead of the Chrome Web Store, you just need to add it to your browser manually. Don't worry, it only takes 30 seconds!
+Most websites freeze your screen with consent banners and newsletter popups. Even if you hide them, they often lock the page so you cannot scroll. 
 
-1. **Download the tool:** Click the green **"Code"** button at the top right of this page and click **"Download ZIP"**.
-2. **Unzip the folder:** Find the downloaded ZIP file on your computer (usually in your Downloads folder) and extract/unzip it. 
-3. **Open Chrome Extensions:** Open Google Chrome, type `chrome://extensions/` into the top web address bar, and press Enter.
-4. **Turn on Developer Mode:** Look in the top right corner of that screen and turn on the switch that says **"Developer mode"**.
-5. **Add the tool:** Click the **"Load unpacked"** button that just appeared in the top left. Select the unzipped folder you created in Step 2.
+This extension fixes that instantly:
+* Targets modern cookie platforms (OneTrust, Cookiebot, Didomi, Shopify consent apps, and custom banners).
+* Pierces through Shadow DOM boundaries and cross-origin iframes.
+* Destroys hidden backdrop overlays blocking your mouse clicks.
+* Forcefully unlocks the page scrollbar.
+* Runs a temporary two second watchdog to crush delayed popups, then shuts down completely to prevent browser freezing.
 
-**You're all set!** Go to any website with an annoying popup and try pressing `Alt + C + R` to see the magic happen.
+---
+
+## Keyboard Shortcuts
+
+### 1. Alt + C + R (Smart Auto-Nuke)
+The primary weapon. Press this combination on any website to scan for cookie popups, accept buttons, and consent banners. It deletes the banner and instantly restores your ability to scroll.
+
+### 2. Alt + X (Sniper Zapper)
+For stubborn elements that escape automatic detection:
+1. Press `Alt + X`. Your cursor turns into a red crosshair.
+2. Hover over the annoying element until it highlights in red.
+3. Click it. The script climbs the page tree, deletes the element along with its invisible background wrapper, and unlocks the page.
+
+### 3. Alt + K (The Nuclear Button)
+For aggressive full-page promotional modals and discount popups. This ignores element names entirely and deletes any full-screen overlay fixed to your viewport.
+
+---
+
+## Tech Stack
+
+* **Manifest V3:** Fully compliant with modern Chrome extension standards.
+* **Vanilla JavaScript:** Zero external dependencies, fast execution, zero telemetry.
+* **Dedicated CSS Injection:** Bypasses aggressive Content Security Policies to force open frozen scrollbars.
+
+---
+
+## How to Install (Takes 30 Seconds)
+
+Because this tool is shared directly from GitHub and not the Chrome Web Store, you load it manually:
+
+1. Click the green **Code** button at the top of this repository and select **Download ZIP** (or clone the repository).
+2. Extract the downloaded folder on your computer.
+3. Open Google Chrome and type `chrome://extensions/` in the address bar.
+4. Toggle on **Developer mode** in the top-right corner.
+5. Click **Load unpacked** in the top-left corner.
+6. Select the folder containing `manifest.json`, `content.js`, `nuke.css`, and `logo.png`.
+
+The extension is now live. Open any website, test the shortcuts, and browse without popups.
