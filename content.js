@@ -1,30 +1,43 @@
 let keysPressed = {};
 let zapperMode = false;
 let hoveredElement = null;
+let scrollObserver = null;
+let observerTimer = null;
 
+// Communication bridge for trapped iframes
 window.addEventListener('message', (event) => {
   if (event.data === 'EXECUTE_NUKE') nukeCookiePopups();
   if (event.data === 'EXECUTE_KILL_ALL') killAllOverlays();
 });
 
+// Shortcut listeners
 document.addEventListener('keydown', (e) => {
   keysPressed[e.key.toLowerCase()] = true;
 
+  // Auto-Nuke: Alt + C + R
   if (e.altKey && keysPressed['c'] && keysPressed['r']) {
     e.preventDefault();
-    if (window !== window.top) window.top.postMessage('EXECUTE_NUKE', '*');
-    else nukeCookiePopups();
+    if (window !== window.top) {
+      window.top.postMessage('EXECUTE_NUKE', '*');
+    } else {
+      nukeCookiePopups();
+    }
     keysPressed['c'] = false;
     keysPressed['r'] = false;
   }
 
+  // Kill All Overlays: Alt + K
   if (e.altKey && keysPressed['k']) {
     e.preventDefault();
-    if (window !== window.top) window.top.postMessage('EXECUTE_KILL_ALL', '*');
-    else killAllOverlays();
+    if (window !== window.top) {
+      window.top.postMessage('EXECUTE_KILL_ALL', '*');
+    } else {
+      killAllOverlays();
+    }
     keysPressed['k'] = false;
   }
 
+  // Smart Zapper Mode: Alt + X
   if (e.altKey && keysPressed['x']) {
     zapperMode = !zapperMode;
     document.body.style.cursor = zapperMode ? 'crosshair' : 'default';
@@ -36,7 +49,7 @@ document.addEventListener('keyup', (e) => {
   keysPressed[e.key.toLowerCase()] = false;
 });
 
-// ZAPPER MODE LOGIC
+// Zapper element targeting
 document.addEventListener('mouseover', (e) => {
   if (!zapperMode) return;
   e.stopPropagation();
@@ -50,6 +63,7 @@ document.addEventListener('mouseout', (e) => {
   if (hoveredElement) hoveredElement.style.outline = '';
 });
 
+// Zapper click destruction
 document.addEventListener('click', (e) => {
   if (!zapperMode) return;
   
@@ -59,6 +73,7 @@ document.addEventListener('click', (e) => {
   let target = e.target;
   target.style.outline = ''; 
 
+  // Climb DOM tree to nuke fixed container
   let current = target;
   let elementToDestroy = target;
   
@@ -74,11 +89,12 @@ document.addEventListener('click', (e) => {
   elementToDestroy.remove(); 
   forceUnlockScroll();
 
+  // Instant disarm
   zapperMode = false;
   document.body.style.cursor = 'default';
 }, true);
 
-// AUTO NUKE LOGIC
+// Main auto-nuke sequence
 function nukeCookiePopups() {
   const selectors = [
     'iframe[id^="sp_message"]', 'iframe[title*="consent" i]', 'div[id^="sp_message_container"]',
@@ -102,6 +118,7 @@ function nukeCookiePopups() {
       if (style.position === 'fixed' || style.position === 'absolute') el.remove();
     });
 
+    // Text heuristic hunter
     const triggerWords = ['accept all', 'accept cookies', 'allow cookies', 'got it', 'i agree', 'allow all', 'reject all', 'customize'];
     const clickables = node.querySelectorAll('button, a, [role="button"]');
     
@@ -125,6 +142,7 @@ function nukeCookiePopups() {
       }
     });
 
+    // Shadow DOM traversal
     const allChildren = node.querySelectorAll('*');
     allChildren.forEach(child => {
       if (child.shadowRoot) destroyInNode(child.shadowRoot); 
@@ -135,6 +153,7 @@ function nukeCookiePopups() {
   forceUnlockScroll();
 }
 
+// Nuclear option: delete all high z-index fixed overlays
 function killAllOverlays() {
   function destroyFixed(node) {
     const allElements = node.querySelectorAll('*');
@@ -142,7 +161,9 @@ function killAllOverlays() {
       const style = window.getComputedStyle(el);
       if (style.position === 'fixed') {
         const zIndex = parseInt(style.zIndex, 10);
-        if (zIndex > 10 || (style.width === '100vw' && style.height === '100vh') || style.inset === '0px') el.remove();
+        if (zIndex > 10 || (style.width === '100vw' && style.height === '100vh') || style.inset === '0px') {
+          el.remove();
+        }
       }
       if (el.shadowRoot) destroyFixed(el.shadowRoot);
     });
@@ -152,26 +173,36 @@ function killAllOverlays() {
   forceUnlockScroll();
 }
 
+// Watchdog: runs intensely for 2 seconds, then self-destructs
 function forceUnlockScroll() {
   document.documentElement.classList.add('nuked-scroll-lock');
-}
 
-// MUTATION OBSERVER
-const scrollObserver = new MutationObserver(() => {
-  const root = document.documentElement;
-  const body = document.body;
-  
-  if (!root || !body) return;
-
-  const rootStyle = window.getComputedStyle(root);
-  const bodyStyle = window.getComputedStyle(body);
-  
-  const isLocked = rootStyle.overflow === 'hidden' || bodyStyle.overflow === 'hidden' || rootStyle.position === 'fixed' || bodyStyle.position === 'fixed';
-  
-  if (isLocked) {
-    forceUnlockScroll();
+  // Tear down existing observer if running
+  if (scrollObserver) {
+    scrollObserver.disconnect();
+    scrollObserver = null;
   }
-});
+  if (observerTimer) {
+    clearTimeout(observerTimer);
+  }
 
-scrollObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['style', 'class'] });
-scrollObserver.observe(document.body, { attributes: true, attributeFilter: ['style', 'class'] });
+  // Spin up temporary watchdog
+  scrollObserver = new MutationObserver(() => {
+    if (!document.documentElement.classList.contains('nuked-scroll-lock')) {
+      document.documentElement.classList.add('nuked-scroll-lock');
+    }
+  });
+
+  scrollObserver.observe(document.documentElement, { 
+    attributes: true, 
+    attributeFilter: ['class'] 
+  });
+
+  // Shut down completely after 2 seconds
+  observerTimer = setTimeout(() => {
+    if (scrollObserver) {
+      scrollObserver.disconnect();
+      scrollObserver = null;
+    }
+  }, 2000);
+}
