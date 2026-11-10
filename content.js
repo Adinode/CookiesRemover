@@ -4,6 +4,16 @@ let hoveredElement = null;
 let scrollObserver = null;
 let observerTimer = null;
 
+// Helper to hide elements without crashing React
+function hideElement(el) {
+  if (!el) return;
+  el.style.setProperty('display', 'none', 'important');
+  el.style.setProperty('opacity', '0', 'important');
+  el.style.setProperty('visibility', 'hidden', 'important');
+  el.style.setProperty('pointer-events', 'none', 'important');
+  el.style.setProperty('z-index', '-2147483648', 'important');
+}
+
 // Communication bridge for trapped iframes
 window.addEventListener('message', (event) => {
   if (event.data === 'EXECUTE_NUKE') nukeCookiePopups();
@@ -73,7 +83,7 @@ document.addEventListener('click', (e) => {
   let target = e.target;
   target.style.outline = ''; 
 
-  // Climb DOM tree to nuke fixed container
+  // Climb DOM tree to hide fixed container
   let current = target;
   let elementToDestroy = target;
   
@@ -86,7 +96,7 @@ document.addEventListener('click', (e) => {
     current = current.parentElement;
   }
 
-  elementToDestroy.remove(); 
+  hideElement(elementToDestroy); 
   forceUnlockScroll();
 
   // Instant disarm
@@ -108,14 +118,14 @@ function nukeCookiePopups() {
     elements.forEach(el => {
       const style = window.getComputedStyle(el);
       if (style.position === 'fixed' || style.position === 'absolute' || style.position === 'sticky' || el.tagName === 'IFRAME') {
-        el.remove();
+        hideElement(el);
       }
     });
 
     const backdrops = node.querySelectorAll('div[class*="backdrop" i], div[class*="overlay" i], div[id*="backdrop" i], div[id*="overlay" i]');
     backdrops.forEach(el => {
       const style = window.getComputedStyle(el);
-      if (style.position === 'fixed' || style.position === 'absolute') el.remove();
+      if (style.position === 'fixed' || style.position === 'absolute') hideElement(el);
     });
 
     // Text heuristic hunter
@@ -138,7 +148,7 @@ function nukeCookiePopups() {
           current = current.parentElement;
         }
 
-        if (wrapper) wrapper.remove();
+        if (wrapper) hideElement(wrapper);
       }
     });
 
@@ -153,7 +163,7 @@ function nukeCookiePopups() {
   forceUnlockScroll();
 }
 
-// Nuclear option: delete all high z-index fixed overlays
+// Nuclear option: hide all high z-index fixed overlays
 function killAllOverlays() {
   function destroyFixed(node) {
     const allElements = node.querySelectorAll('*');
@@ -162,7 +172,7 @@ function killAllOverlays() {
       if (style.position === 'fixed') {
         const zIndex = parseInt(style.zIndex, 10);
         if (zIndex > 10 || (style.width === '100vw' && style.height === '100vh') || style.inset === '0px') {
-          el.remove();
+          hideElement(el);
         }
       }
       if (el.shadowRoot) destroyFixed(el.shadowRoot);
